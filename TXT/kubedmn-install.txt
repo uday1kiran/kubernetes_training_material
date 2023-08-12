@@ -33,6 +33,7 @@ root@ip-10-1-1-81:~# kubectl get pods -A
 
 kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
 
+root@ip-10-1-1-81:~# aloas ku=kubectl
 root@ip-10-1-1-81:~# ku get nodes
 NAME           STATUS     ROLES    AGE     VERSION
 ip-10-1-1-81   Ready      master   5m47s   v1.18.3
