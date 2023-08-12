@@ -15,6 +15,9 @@ sudo apt-mark hold kubelet kubeadm kubectl
 ------------------------------------------------------------------------------
 kubeadm init --pod-network-cidr 192.168.0.0/16 --kubernetes-version 1.20.2
 
+##To use a second NIC card when you are running on virutalbox VMs where NAT and Host-only separate adapters.
+sudo kubeadm init --apiserver-advertise-address=192.168.56.11 --pod-network-cidr 192.168.0.0/16 --kubernetes-version 1.20.2
+
 BELOW COMMAND NEEDED TO BE EXECUTED IN THE WORKER NODE:
 kubeadm join 10.1.1.200:6443 --token ynogss.v28um8uq3pbza9mo \
     --discovery-token-ca-cert-hash sha256:e5c238a5f964a05cdf2e09adfe8d3458eaabb6925327fa76849ae8463d0ea84f
