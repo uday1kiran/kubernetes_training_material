@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: java
+  name: java
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java
+  template:
+    metadata:
+      labels:
+        app: java
+    spec:
+      containers:
+      - image: index.docker.io/sreeharshav/rollingupdate:v1
+        name: rollingupdate
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dotnet
+  name: dotnet
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dotnet
+  template:
+    metadata:
+      labels:
+        app: dotnet
+    spec:
+      containers:
+      - image: index.docker.io/sreeharshav/rollingupdate:v5
+        name: rollingupdate
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: python
+  name: python
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: python
+  template:
+    metadata:
+      labels:
+        app: python
+    spec:
+      containers:
+      - image: index.docker.io/sreeharshav/testcontainer:v1
+        name: testcontainer

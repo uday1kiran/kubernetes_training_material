@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: probetesting
+  name: probetesting
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: probetesting
+  template:
+    metadata:
+      labels:
+        app: probetesting
+    spec:
+      containers:
+      - image: sreeharshav/testcontainer:v1
+        name: testcontainer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: probetesting
+  name: probetesting
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 31111
+  selector:
+    app: probetesting
+  type: NodePort
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    timeoutSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
+    httpGet:
+        path: /
+        port: 80

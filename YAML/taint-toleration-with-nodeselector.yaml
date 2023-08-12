@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nottaint2
+  name: nottaint2
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nottaint2
+  template:
+    metadata:
+      labels:
+        app: nottaint2
+    spec:
+      containers:
+      - image: sreeharshav/rollingupdate:v5
+        name: rollingupdate
+      tolerations:
+      - key: "project"
+        operator: "Equal"
+        value: "phoenix"
+        effect: "NoExecute"
+      nodeSelector:
+          perf: high1
+          perf: high2 # It will only consider the first one. Need to use nodeaffinity in this case.

@@ -1,0 +1,80 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-alpha-to-mysql-connect
+  namespace: mysqldb
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql
+  ingress: 
+    - from:
+      - namespaceSelector: 
+          matchLabels:
+            nsp: alpha
+        podSelector:
+          matchLabels:
+            ns: alpha   # This will allow only POD with ns=alpha to communicate with mysql i.e utilspod
+
+#Allowing Specific Port will block ICMP and Allow Only Port
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-alpha-to-mysql-connect-on-3306
+  namespace: mysqldb
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql
+  ingress: 
+    - from:
+      - namespaceSelector: 
+          matchLabels:
+            nsp: alpha
+        podSelector:
+          matchLabels:
+            ns: alpha
+      ports:
+       - protocol: TCP
+         port: 3306
+         
+         
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-bravo-mysql-connect
+  namespace: mysqldb
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql
+  ingress: 
+    - from:
+      - namespaceSelector: 
+          matchLabels:
+            nsp: bravo
+        podSelector:
+          matchLabels:
+            ns: bravo
+
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-charlie-mysql-connect
+  namespace: mysqldb
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql
+  ingress: 
+    - from:
+      - namespaceSelector: 
+          matchLabels:
+            nsp: charlie
+        podSelector:
+          matchLabels:
+            app: charlienginx01
+            

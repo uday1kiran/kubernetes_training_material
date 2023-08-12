@@ -1,0 +1,53 @@
+You can perform HPA on a Cluster created using KOPS or AWS EKS.
+If you use AWS EKS, metric sever needs to be enabled by using the following
+command.
+
+https://aws.amazon.com/premiumsupport/knowledge-center/eks-metrics-server-pod-autoscaler/
+
+To install Metrics Server, run the following command:
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
+
+To confirm that Metrics Server is running, run the following command:
+kubectl get pods -n kube-system -l k8s-app=metrics-server
+
+For keeping a default load usig stress using sreeharshav/stress:256M.
+This will increase the POD count but will not decrease as the stress 
+will run default on the pods. Its good to test this. You can find the
+CMD running on the pod using docker inspect image <imagename>.
+
+For testing the HPA use the image sreeharshav/utils:latest
+
+
+
+
+https://www.stackrox.com/post/2020/05/kubernetes-autoscaling-explained/
+================================================================================
+For Cluster created with KOPS, following steps need to be performed:
+
+Perform kubectl -f kops-metrics.yaml # This will deploy the metrics server.
+
+Below command will give error because of DEployment API version. Use the file kops-metrics.yaml in the drive.
+
+Create a nginx deployment with one replica and also service
+kubectl autoscale deployment nginx --cpu-percent=50 --min=1 --max=10
+
+To add flag to kube-controller-manager edit /etc/kubernetes/manifests/kube-controller-manager.yaml on master node, pod will be then recreated
+--horizontal-pod-autoscaler-downscale-stabilization
+
+cd /etc/kubernetes/manifests/
+kube-controller-manager.manifest
+
+root@ip-192-168-1-100:~/clusters# ku get hpa
+NAME    REFERENCE          TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+nginx   Deployment/nginx   0%/50%    1         10        1          3m10s
+
+
+
+----------------------KOPS_AWS-CLUSTER-AUTOSCALER-------------------------
+Need to deploy a lot of things to achive this. Better to check it in EKS or AKS using cluster autoscalrer
+https://www.replex.io/blog/the-ultimate-guide-to-deploying-kubernetes-cluster-on-aws-ec2-spot-instances-using-kops-and-eks
+https://varlogdiego.com/kubernetes-cluster-with-autoscaling-on-aws-and-kops
+
+https://medium.com/omio-engineering/cpu-limits-and-aggressive-throttling-in-kubernetes-c5b20bd8a718
+
+

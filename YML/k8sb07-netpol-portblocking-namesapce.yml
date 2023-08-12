@@ -1,0 +1,107 @@
+#Create Two New Namespaces prod and dev and assign labels ns=prod & ns=dev
+#Deploy Pods as shown below
+
+#Deploy POD in default namespace
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    role: defaultwebserver
+  name: defaultngnix
+  namespace: default
+spec:
+  containers:
+  - image: nginx:latest
+    name: nginx
+
+#Deploy POD in prod namespace
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    role: prodwebserver
+  name: prodngnix
+  namespace: prod
+spec:
+  containers:
+  - image: sreeharshav/rollingupdate:v1
+    name: nginx
+
+#Deploy POD in dev namespace
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    role: devwebserver
+  name: devngnix
+  namespace: dev
+spec:
+  containers:
+  - image: sreeharshav/rollingupdate:v5
+    name: nginx
+
+#Create Network Policies as per below. It will only allow PODs which are in the same
+#namespace to communicate with the nginx server
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-defaultutils-to-defaultnginx
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: defaultwebserver
+  ingress:
+    - from:
+       - podSelector:
+           matchLabels:
+            app: myutils
+      ports:
+       - protocol: TCP
+         port: 80
+
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-produtils-to-prodnginx
+  namespace: prod
+spec:
+  podSelector:
+    matchLabels:
+      role: prodwebserver
+  ingress:
+    - from:
+       - podSelector:
+           matchLabels:
+            app: produtils
+      ports:
+       - protocol: TCP
+         port: 80
+
+
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-devutils-to-devnginx
+  namespace: dev
+spec:
+  podSelector:
+    matchLabels:
+      role: devwebserver
+  ingress:
+    - from:
+       - podSelector:
+           matchLabels:
+            app: devutils
+      ports:
+       - protocol: TCP
+         port: 80
+
+
+      

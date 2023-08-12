@@ -1,0 +1,88 @@
+FOR CONTROL PLANE:
+==================
+Make sure you create the master server with 2CPU(Use t2.medium)
+curl https://get.docker.com/ | bash
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+sudo swapoff -a
+sudo apt-get update
+#sudo apt-get install -y kubelet kubeadm kubectl
+#sudo apt-get install -y kubelet=1.20.2-00 kubeadm=1.20.2-00 kubectl=1.20.2-00
+sudo apt-mark hold kubelet kubeadm kubectl
+------------------------------------------------------------------------------
+kubeadm init --pod-network-cidr 192.168.0.0/16 --kubernetes-version 1.20.2
+
+BELOW COMMAND NEEDED TO BE EXECUTED IN THE WORKER NODE:
+kubeadm join 10.1.1.200:6443 --token ynogss.v28um8uq3pbza9mo \
+    --discovery-token-ca-cert-hash sha256:e5c238a5f964a05cdf2e09adfe8d3458eaabb6925327fa76849ae8463d0ea84f
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+root@ip-10-1-1-81:~# kubectl get nodes
+NAME           STATUS     ROLES    AGE     VERSION
+ip-10-1-1-81   NotReady   master   2m16s   v1.18.3
+
+kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+
+root@ip-10-1-1-81:~# ku get nodes
+NAME           STATUS     ROLES    AGE     VERSION
+ip-10-1-1-81   Ready      master   5m47s   v1.18.3
+
+ON WORKER NODE:
+==============
+curl https://get.docker.com/ | bash
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+sudo apt-get update
+#sudo apt-get install -y kubelet kubeadm kubectl
+#sudo apt-get install -y kubelet=1.20.2-00 kubeadm=1.20.2-00 kubectl=1.20.2-00
+sudo apt-mark hold kubelet kubeadm kubectl
+
+kubeadm join 10.1.1.81:6443 --token j1dmnn.5p2vhbau96eupjdl \
+    --discovery-token-ca-cert-hash sha256:cf2b3dc616f30fde87730fa1955a14b391eaf15d737be54d2d3a7c32634bc6ec
+
+This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
+
+AGAIN ON THE MASTER NODE:
+=========================
+root@ip-10-1-1-81:~# kubectl get nodes
+NAME           STATUS   ROLES    AGE     VERSION
+ip-10-1-1-81   Ready    master   7m50s   v1.18.3
+ip-10-1-1-99   Ready    <none>   2m14s   v1.18.3
+root@ip-10-1-1-81:~# kubectl label node ip-10-1-1-99 node-role.kubernetes.io/worker=worker
+node/ip-10-1-1-99 labeled
+root@ip-10-1-1-81:~# ku get nodes
+NAME           STATUS   ROLES    AGE     VERSION
+ip-10-1-1-81   Ready    master   8m19s   v1.18.3
+ip-10-1-1-99   Ready    worker   2m43s   v1.18.3
+
+ADDING ADDITIONAL NODE TO CLUSTER:
+kubeadm token create --print-join-command
+kubeadm join 10.1.1.200:6443 --token azk1md.l4uojch8lssib3a8  --discovery-token-ca-cert-hash sha256:e5c238a5f964a05cdf2e09adfe8d3458eaabb6925327fa76849ae8463d0ea84f
+
+
+DRAINING and DELETING NODE:
+ku drain ip-10-1-2-5 --force --ignore-daemonsets
+
+root@ip-10-1-1-200:/etc/kubernetes/pki# ku get nodes
+NAME            STATUS                     ROLES    AGE   VERSION
+ip-10-1-1-200   Ready                      master   57m   v1.18.3
+ip-10-1-2-42    Ready                      worker   43m   v1.18.3
+ip-10-1-2-5     Ready,SchedulingDisabled   worker   42m   v1.18.3
+ip-10-1-3-58    Ready                      worker   12m   v1.18.3
+
+ku delete node ip-10-1-2-5
+
+ku drain ip-10-1-2-42 --force --ignore-daemonsets && ku delete node ip-10-1-2-42
+ku drain ip-10-1-3-58 --force --ignore-daemonsets && ku delete node ip-10-1-3-58
+

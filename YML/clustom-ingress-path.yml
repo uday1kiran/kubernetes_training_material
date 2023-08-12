@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: deploy5
+  name: deploy5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deploy5
+  template:
+    metadata:
+      labels:
+        app: deploy5
+    spec:
+      containers:
+      - image: index.docker.io/sreeharshav/customingresspath:v1
+        name: rollingupdate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: deploy5
+  name: deploy5
+spec:
+  ports:
+  - port: 9500
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: deploy5
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: deploy5-ingress-1
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: main.awscoffeeshop.xyz
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: deploy5
+            servicePort: 9500
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: deploy5-ingress-2
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /movies/index.html
+spec:
+  rules:
+  - host: movies.awscoffeeshop.xyz
+    http:
+      paths:
+        - path: /movies/index.html
+          backend:
+            serviceName: deploy5
+            servicePort: 9500

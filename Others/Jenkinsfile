@@ -1,0 +1,31 @@
+pipeline {
+    environment {
+        dockerImage = ''
+    }
+    agent any
+    stages {
+        stage('Code Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHubAccess', url: 'git@github.com:SreeVeerDevOps/k8sb08-jenkins-ado-class.git']]])
+                sh 'ls -al'
+            }
+        }
+        stage('Create Namespace') {
+            steps {
+                sh 'kubectl create ns dev || kubens dev'
+            }
+        }
+        stage('Kubectl Apply Dry Run') {
+            steps {
+                sh 'kubens dev'
+                sh 'kubectl apply -f votingapp.yml -o yaml --dry-run'
+            }
+        }
+        stage('Kubectl Apply') {
+            steps {
+                sh 'kubens dev'
+                sh 'kubectl apply -f votingapp.yml'
+            }
+        }
+    }
+}

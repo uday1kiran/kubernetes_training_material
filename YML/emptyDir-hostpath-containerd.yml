@@ -1,0 +1,50 @@
+#Install below on UTILS containers
+#apt-get update -y && apt-get install -y containerd
+#Containerd commands https://sweetcode.io/getting-started-with-containerd/
+# ctr image pull docker.io/library/hello-world:latest
+# ctr image ls -q
+# ctr container create docker.io/library/hello-world:latest demo1
+# ctr container create docker.io/library/hello-world:latest demo2
+# ctr container create docker.io/library/hello-world:latest demo3
+#Go to utils container and ctr containers ls to find all the 3 demo containers.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: utils
+        image: sreeharshav/utils:latest
+        volumeMounts:
+          - name: myemptydir
+            mountPath: /etc/myemptydir
+          - name: containerdsock
+            mountPath: "/run/containerd/containerd.sock"
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+            - mountPath: /tmp/myemptydir
+              name: myemptydir
+      volumes:
+        - name: myemptydir
+          emptyDir: {}
+        - name: containerdsock
+          hostPath:
+            path: /run/containerd/containerd.sock
+
+
+          

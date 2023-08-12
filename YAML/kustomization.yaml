@@ -1,0 +1,17 @@
+secretGenerator:
+- name: db-user-pass-1
+  literals:
+  - username=admin
+  - password=1f2d1e2e67df
+- name: db-user-pass-2
+  literals:
+  - username=admin
+  - password=1f2d1e2e67df
+- name: db-user-pass-3
+  literals:
+  - username=admin
+  - password=1f2d1e2e67df
+- name: db-user-pass-4
+  files:
+  - username.txt
+  - password.txt

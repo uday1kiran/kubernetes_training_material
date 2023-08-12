@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server
+spec:
+  selector:
+    matchLabels:
+      cloud: aws
+  replicas: 10
+  template:
+    metadata:
+      labels:
+        cloud: aws
+        performance: high
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: performance
+                operator: In
+                values:
+                - high
+            topologyKey: "topology.kubernetes.io/zone"
+      containers:
+      - name: web-app
+        image: nginx:1.16-alpine

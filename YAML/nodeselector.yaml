@@ -1,0 +1,22 @@
+#ku label node <node-name> perf=high
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: high
+  name: high
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: high
+  template:
+    metadata:
+      labels:
+        app: high
+    spec:
+      containers:
+      - image: sreeharshav/rollingupdate:v5
+        name: rollingupdate
+      nodeSelector:
+        perf: high

@@ -1,0 +1,35 @@
+#Creating Namespaces & Utilpods
+ku create ns alpha
+ku create ns bravo
+ku create ns charlie
+ku create ns mysqldb
+
+#Labling Namespaces
+ku label ns alpha nsp=alpha
+ku label ns bravo nsp=bravo
+ku label ns charlie nsp=charlie
+ku label ns mysqldb nsp=mysqldb
+
+#Deploy UTILS pod in all namespaces
+ku run -n alpha alphautils1 --image=sreeharshav/utils -l ns=alpha
+ku run -n alpha alphautils2 --image=sreeharshav/utils -l ns=alpha
+
+ku run -n bravo bravoutils1 --image=sreeharshav/utils -l ns=bravo
+ku run -n bravo bravoutils2 --image=sreeharshav/utils -l ns=bravo
+
+ku run -n charlie charlieutils1 --image=sreeharshav/utils --labels ns=charlie
+ku run -n charlie charlieutils2 --image=sreeharshav/utils --labels ns=charlie
+
+ku get po -n alpha -o wide
+
+
+
+ku exec -it  alphautils -n alpha -- ping -c 3 x.x.x.x
+ku exec -it  alphautils -n alpha -- ping -c 3 x.x.x.x
+
+ku exec -it  bravoutils -n bravo -- ping -c 3 x.x.x.x
+ku exec -it  bravoutils -n bravo -- ping -c 3 x.x.x.x
+
+ku exec -it  charlieutils -n charlie -- ping -c 3 x.x.x.x
+ku exec -it  charlieutils -n charlie -- ping -c 3 x.x.x.x
+

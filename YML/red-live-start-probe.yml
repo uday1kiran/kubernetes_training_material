@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: sreeharshav/testcontainer:v1
+        ports:
+        - containerPort: 80
+        readinessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+                path: /index.nginx-debian.html
+                port: 80
+        livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 1
+            httpGet:
+                path: /index.nginx-debian.html
+                port: 80
+        startupProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 1
+            httpGet:
+                path: /index.nginx-debian.html
+                port: 80
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: myservice
+  labels:
+    app:  nginx
+spec:
+  selector:
+    app:  nginx
+  type:   NodePort
+  ports:
+  - name:  mynginx
+    port:  8000
+    targetPort:  80

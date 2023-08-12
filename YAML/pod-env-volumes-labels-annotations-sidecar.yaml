@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod1
+    env: prod
+    owner: sreeharsha
+  annotations:
+    notes: "I am Testing How The POD Is I am Testing How The POD Is Created"
+    location: "Pune"
+  name: pod1
+spec:
+  containers:
+  - image: nginx
+    name: pod1

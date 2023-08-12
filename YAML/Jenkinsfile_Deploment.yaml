@@ -1,0 +1,45 @@
+pipeline {
+  agent any
+  stages {
+    stage('GitCheckOut') {
+      steps {
+        checkout([$class: 'GitSCM', branches: [
+          [name: '*/main']
+        ], extensions: [], userRemoteConfigs: [
+          [url: 'https://github.com/SreeVeerDevOps/k8sb04-jenkins.git']
+        ]])
+        sh "pwd"
+      }
+    }
+    stage('staging Deployment') {
+      when {
+        expression {
+          return params.ENV == 'staging'
+        }
+      }
+      steps {
+        sh "kubectl apply -f deployment.yaml -n staging"
+      }
+    }
+    stage('Development Deployment') {
+      when {
+        expression {
+          return params.ENV == 'development'
+        }
+      }
+      steps {
+        sh "kubectl apply -f deployment.yaml -n development"
+      }
+    }
+    stage('Production Deployment') {
+      when {
+        expression {
+          return params.ENV == 'production'
+        }
+      }
+      steps {
+        sh "kubectl apply -f deployment.yaml -n production"
+      }
+    }
+  }
+}

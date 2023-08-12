@@ -1,0 +1,40 @@
+#Adapter Container testing with POD
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adapter-container-demo
+spec:
+  containers:
+  - image: busybox
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo $(date -u)'#This is log' >> /var/log/file.log; sleep 5;done"]
+    name: main-container
+    resources: {}
+    volumeMounts:
+    - name: var-logs
+      mountPath: /var/log
+  - image: sreeharshav/adapter:v1
+    name: adapter-container
+    imagePullPolicy: Always
+    resources: {}
+    ports:
+      - containerPort: 3080
+    volumeMounts:
+    - name: var-logs
+      mountPath: /var/log
+  dnsPolicy: Default
+  volumes:
+  - name: var-logs
+    emptyDir: {}
+
+
+#ON-MAIN-CONTAINER
+# ku exec -it adapter-container-demo -c main-container -- /bin/sh
+# cat /var/log/file.log
+
+#ON-ADAPTER-CONTAINER
+# ku exec -it adapter-container-demo -c adapter-container -- /bin/sh
+# bash
+# apt update && apt install -y jq curl
+# curl localhost:3080/logs | jq 

@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: java
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - "java.trainingk8s.xyz"
+    secretName: nginx-tls-default
+  rules:
+  - host: java.trainingk8s.xyz
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: java
+            servicePort: 8000
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dotnet
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - "dotnet.trainingk8s.xyz"
+    secretName: nginx-tls-default
+  rules:
+  - host: dotnet.trainingk8s.xyz
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: dotnet
+            servicePort: 8000
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: python
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - "python.trainingk8s.xyz"
+    secretName: nginx-tls-default
+  rules:
+  - host: python.trainingk8s.xyz
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: python
+            servicePort: 8000

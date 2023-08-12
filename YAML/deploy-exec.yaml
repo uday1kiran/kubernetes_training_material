@@ -1,0 +1,65 @@
+#Below shell script will delete the index file in all the pods.
+#for POD in $(ku get pod --no-headers | cut -d " " -f1)
+#do
+#kubectl exec -it $POD -- rm -f /var/www/html/index.nginx-debian.html
+#sleep 1
+#done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: sreeharshav/testcontainer:v1
+        ports:
+        - containerPort: 80
+        readinessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            exec:
+              command:
+              - cat
+              - /var/www/html/index.nginx-debian.html
+        livenessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            exec:
+              command:
+              - cat
+              - /var/www/html/index.nginx-debian.html
+ 
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: myservice
+  labels:
+    app:  nginx
+spec:
+  selector:
+    app:  nginx
+  type:   NodePort
+  ports:
+  - name:  name-of-the-port
+    port:  8000
+    targetPort:  80
+    nodePort: 30417

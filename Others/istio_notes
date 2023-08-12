@@ -1,0 +1,27 @@
+https://www.istioworkshop.io/01-workshop-overview/
+
+https://github.com/rafik8/istio-workshop-labs.git
+
+curl -sfL https://get.k3s.io | sh -  #Installs Traefik Ingress Controller
+
+Below command for K3S for using ISTIO:
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--no-deploy traefik" sh -s –
+cat /var/lib/rancher/k3s/server/node-token
+curl -sfL https://get.k3s.io | K3S_URL=https://192.168.1.248:6443 K3S_TOKEN=<token> sh -
+/usr/local/bin/k3s-uninstall.sh
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+
+curl -L https://istio.io/downloadIstio | sh -
+
+istioctl install
+
+kubectl label namespace default istio-injection=enabled
+
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.11/samples/addons/kiali.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.11/samples/addons/jaeger.yaml
+
+Uninstall istio:
+istioctl x uninstall --purge
+
+

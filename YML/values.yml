@@ -1,0 +1,12 @@
+replicaCount: 3
+deployLabel: labelnginx01
+deployName: nginx01
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80

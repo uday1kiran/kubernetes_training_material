@@ -1,0 +1,47 @@
+#Allow Traffic Only Between UtilsPod and The Deployment.
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-utils-pod
+  namespace: alpha
+spec:
+  podSelector:
+    matchLabels:
+      app: alphanginx01
+  ingress:
+  - from:
+      - podSelector:
+          matchLabels:
+            ns: alpha
+
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-utils-pod
+  namespace: bravo
+spec:
+  podSelector:
+    matchLabels:
+      app: bravonginx01
+  ingress:
+  - from:
+      - podSelector:
+          matchLabels:
+            ns: bravo
+
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-utils-pod
+  namespace: charlie
+spec:
+  podSelector:
+    matchLabels:
+      app: charlienginx01
+  ingress:
+  - from:
+      - podSelector:
+          matchLabels:
+            ns: charlie

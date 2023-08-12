@@ -1,0 +1,124 @@
+#SAMPLE JOB
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: samplejob
+spec:
+  template:
+    spec:
+      containers:
+      - name: utils1
+        image: sreeharshav/utils
+        command: ["/bin/ping"]
+        args: ["-c 5", "www.google.com"]
+      restartPolicy: Never
+
+#Testing Backoff Limits
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ping
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: sreeharshav/utils:v8
+        command: ["/bin/bas"] #Gave a bas intentionally
+        args: ["-c", "ping 8.8.8.8"]
+      restartPolicy: Never
+  backoffLimit: 3
+      
+#Back-off and Deadline
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ping
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: sreeharshav/utils:v8
+        command: ["/bin/bash"]
+        args: ["-c", "ping 8.8.8.8"]
+      restartPolicy: Never
+  backoffLimit: 5
+  activeDeadlineSeconds: 60
+
+#MYSQL DEPLOYMENT & SERVICE
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: mysql1
+  name: mysql1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: mysql1
+  template:
+    metadata:
+      labels:
+        run: mysql1
+    spec:
+      containers:
+      - image: mysql:latest
+        name: mysql1
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: India@12345
+        volumeMounts:
+          - name: mysql-volume
+            mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-volume
+        emptyDir: {}        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: mysql1
+  name: mysql1
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+#JOB FOR MYSQL DUMP
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysqldump
+spec:
+  template:
+    spec:
+      containers:
+      - name: mysqldump1
+        image: centos/mysql-57-centos7
+        command: ["/bin/sh","-c",  "/opt/rh/rh-mysql57/root/usr/bin/mysqldump --single-transaction --routines -u $MYSQL_USER $MYSQL_DB -h $MYSQL_HOST | gzip > /tmp/dump`date '+%Y%m%d_%H%M%S'`.sql.gz"]
+        env:
+         - name: MYSQL_USER
+           value: "root"
+         - name: MYSQL_PWD
+           value: "India@12345"
+         - name: MYSQL_HOST
+           value: "mysql1"
+         - name: MYSQL_DB
+           value: "myflixdb"
+        volumeMounts:
+            - mountPath: /tmp
+              name: dbdumpsvol
+              subPath: job03
+      restartPolicy: Never
+      volumes:
+         - name: dbdumpsvol
+           hostPath:
+             path: /tmp/
+      nodeName: ip-172-20-34-169.ec2.internal
+

@@ -1,0 +1,37 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: crondbdump1
+spec:
+  schedule: "* * * * *"  
+  successfulJobsHistoryLimit: 7
+  jobTemplate:             
+    spec:
+      template:
+        metadata:
+          labels:          
+            parent: "crondumpifrs"
+        spec:
+          containers:
+          - name: mysqldump1
+            image: centos/mysql-57-centos7
+            command: ["/bin/sh","-c",  "/opt/rh/rh-mysql57/root/usr/bin/mysqldump --single-transaction --routines -u $MYSQL_USER $MYSQL_DB -h $MYSQL_HOST | gzip > /tmp/dump`date '+%Y%m%d_%H%M%S'`.sql.gz"]
+            env:
+             - name: MYSQL_USER
+               value: "root"
+             - name: MYSQL_PWD
+               value: "India@12345"
+             - name: MYSQL_HOST
+               value: "mysql1"
+             - name: MYSQL_DB
+               value: "myflixdb"
+            volumeMounts:
+                - mountPath: /tmp
+                  name: dbdumpsvol
+                  subPath: job03
+          restartPolicy: Never
+          volumes:
+             - name: dbdumpsvol
+               hostPath:
+                 path: /tmp/
+          nodeName: ip-172-20-34-169.ec2.internal

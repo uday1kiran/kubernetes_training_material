@@ -1,0 +1,59 @@
+# ip-172-20-103-115.ec2.internal
+# ip-172-20-36-2.ec2.internal
+# taint smell:ambika
+# kubectl taint nodes ip-172-20-103-115.ec2.internal ip-172-20-36-2.ec2.internal smell=ambika:NoExecute
+
+# ip-172-20-41-2.ec2.internal
+# ip-172-20-91-31.ec2.internal
+# kubectl taint nodes ip-172-20-41-2.ec2.internal ip-172-20-91-31.ec2.internal smell=nerolac:NoExecute
+# taint smell:nerolac
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nottaint1
+  name: nottaint1
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nottaint1
+  template:
+    metadata:
+      labels:
+        app: nottaint1
+    spec:
+      containers:
+      - image: sreeharshav/rollingupdate:v5
+        name: rollingupdate
+      tolerations:
+      - key: "smell"
+        operator: "Equal"
+        value: "nerolac"
+        effect: "NoExecute"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nottaint2
+  name: nottaint2
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nottaint2
+  template:
+    metadata:
+      labels:
+        app: nottaint2
+    spec:
+      containers:
+      - image: sreeharshav/rollingupdate:v5
+        name: rollingupdate
+      tolerations:
+      - key: "smell"
+        operator: "Equal"
+        value: "ambika"
+        effect: "NoExecute"

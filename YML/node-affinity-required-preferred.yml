@@ -1,0 +1,82 @@
+#Label Nodes Are Per Below.
+ku label node ip-172-20-106-253.ec2.internal env=prod application=app1
+ku label node ip-172-20-154-187.ec2.internal env=prod application=app2
+ku label node ip-172-20-36-223.ec2.internal env=dev application=app3
+ku label node ip-172-20-76-209.ec2.internal env=dev application=app4
+
+You can see the operator In being used in the example. 
+The new node affinity syntax supports the following operators: In, NotIn, Exists, DoesNotExist, Gt, Lt. 
+You can use NotIn and DoesNotExist to achieve node anti-affinity behavior, or use node taints to repel pods from specific nodes.
+
+#Manifest for node-affinity-required
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx001
+  name: nginx001
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx001
+  template:
+    metadata:
+      labels:
+        app: nginx001
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: env
+                operator: In
+                values:
+                - prod
+                - dev
+              - key: application
+                operator: In
+                values:
+                - app1
+      containers:
+      - image: nginx:latest
+        name: nginx
+
+#Manifest for node-affinity-preferred
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx002
+  name: nginx002
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: nginx002
+  template:
+    metadata:
+      labels:
+        app: nginx002
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: env
+                operator: In
+                values:
+                - prod
+                - dev
+              - key: application
+                operator: In
+                values:
+                - app1
+      containers:
+      - image: nginx:latest
+        name: nginx

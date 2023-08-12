@@ -1,0 +1,43 @@
+#First we need to taint the nodes with ENV=PROD:NoSchedule
+#ku taint node ip-172-20-109-125.ec2.internal ENV=PROD:NoSchedule
+#ku taint node ip-172-20-52-241.ec2.internal ENV=PROD:NoSchedule
+#ku taint node ip-172-20-93-36.ec2.internal ENV=PROD:NoSchedule
+
+#Also add a labels as below.
+#ku label node ip-172-20-109-125.ec2.internal PERF=HIGH
+#ku label node ip-172-20-52-241.ec2.internal PERF=HIGH
+#ku label node ip-172-20-93-36.ec2.internal PERF=LOW
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: prodtestdeploy
+  name: prodtestdeploy
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: prodtestdeploy
+  template:
+    metadata:
+      labels:
+        app: prodtestdeploy
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: PERF
+                operator: NotIn #Antiaffinity can be achived using NotIn
+                values:
+                - HIGH
+      containers:
+      - image: sreeharshav/rollingupdate:v1
+        name: rollingupdate
+      tolerations:
+      - key: ENV
+        operator: Equal
+        value: PROD
+        effect: NoSchedule

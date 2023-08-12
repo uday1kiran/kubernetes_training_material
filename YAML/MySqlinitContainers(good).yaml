@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mydb
+  labels:
+    app: db
+spec:
+  initContainers:
+    - name: init-myservice #Not Needed. Kept only for testing.
+      image: busybox:1.28
+      command: ['sh', '-c', 'sleep 30']
+    - name: fetch
+      image: mwendler/wget
+      command: ["wget","--no-check-certificate","https://azureb13devops.blob.core.windows.net/artifacts/Sample-SQL-File-1000rows.sql","-O","/docker-entrypoint-initdb.d/dump.sql"]
+      volumeMounts:
+        - mountPath: /docker-entrypoint-initdb.d
+          name: dump
+  containers:
+    - name: mysql
+      image: mysql
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "India123456"
+      volumeMounts:
+        - mountPath: /docker-entrypoint-initdb.d
+          name: dump
+  volumes:
+    - emptyDir: {}
+      name: dump
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adminer
+  labels:
+    app: adminer
+spec:
+  containers:
+    - name: adminer 
+      image: adminer 
+      ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: adminer
+  name: adminer
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: adminer
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: db
+  name: mydb
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: db
