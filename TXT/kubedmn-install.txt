@@ -85,7 +85,7 @@ http://<any-node-port>:<nodeportip>
 kubectl create deployment testdeploy01 --image=sreeharshav/rollingupdate:v5 --replicas=4
 kubectl get po -wide
 watch kubectl get po
-ku expose deployment testdeploy1 --port:9000 --target-port=80 --type=NodePort
+ku expose deployment testdeploy01 --port=9000 --target-port=80 --type=NodePort
 
 ADDING ADDITIONAL NODE TO CLUSTER:
 kubeadm token create --print-join-command
