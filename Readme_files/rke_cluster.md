@@ -61,3 +61,11 @@ helm install rancher rancher-latest/rancher \
   --set ingress.tls.source=letsEncrypt \
   --set letsEncrypt.email=me@example.org    
 ```
+
+Once deployment above is finished. Check logs of pod in cattle-system with pod starting with cm-acme-http-solver-*
+Add the expected_token value in the log to the TXT record of dns service to value/route traffic to part in the IP Address section.And in the sub domain portion you copy the expected_key
+```
+kubectl expose deploy -n cattle-system --name rancher-ui rancher --port=8000 --target-port 443 --type=NodePort
+## use bootStrapPassword passed
+```
+
