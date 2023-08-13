@@ -18,3 +18,36 @@ If it is AWS, provide public IPs.
   rke up help
   rke up --config rke-clutser.yml  ##it will generate a kube config file also after deploying the cluster.
   ```
+- Install kubectl and use this config to test the cluster.
+
+## Steps to install Rancher UI
+- go to this [link](https://ranchermanager.docs.rancher.com/v2.0-v2.4/pages-for-subheaders/install-upgrade-on-a-kubernetes-cluster) and use 6. Install Rancher with Helm and Your Chosen Certificate Option with Let's encrypt tab selected.
+```
+kubectl create namespace cattle-system  ## step 3
+helm repo add rancher-latest https://releases.rancher.com/server-charts/latest  ##step 2
+helm repo update
+
+##step 5
+
+# Create the namespace for cert-manager
+kubectl create namespace cert-manager
+
+# Add the Jetstack Helm repository
+helm repo add jetstack https://charts.jetstack.io
+
+# Update your local Helm chart repository cache
+helm repo update
+
+# Install the cert-manager Helm chart
+helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --version v1.0.4
+##step 6  replace rancher.my.org with your domain
+helm install rancher rancher-latest/rancher \
+  --namespace cattle-system \
+  --set hostname=rancher.my.org \
+  --set bootstrapPassword=randomepasswordgenerated \
+  --set ingress.tls.source=letsEncrypt \
+  --set letsEncrypt.email=me@example.org    
+```
