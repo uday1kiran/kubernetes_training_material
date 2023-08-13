@@ -28,6 +28,8 @@ helm repo add rancher-latest https://releases.rancher.com/server-charts/latest  
 helm repo update
 
 ##step 5
+# Install the CustomResourceDefinition resources separately
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yaml
 
 # Create the namespace for cert-manager
 kubectl create namespace cert-manager
@@ -39,10 +41,18 @@ helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
 # Install the cert-manager Helm chart
+helm ls -n cert-manager
+
+## if any previous charts found, uninstall first
+helm uninstall -n cert-manager cert-manager
+kubectl delete ns cert-manager ## delete to cleanup and create ns again
+
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.0.4
+  --version v1.5.1
+
+
 ##step 6  replace rancher.my.org with your domain
 helm install rancher rancher-latest/rancher \
   --namespace cattle-system \
