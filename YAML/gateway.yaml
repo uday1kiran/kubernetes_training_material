@@ -9,8 +9,9 @@ spec:
         k8s:
           serviceAnnotations:
             service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-            
-istioctl install -f generated-istio-manifest.yaml
+
+### if gateway CRD need to be installed use below command by pasting above content in the generated-istio-manifest.yaml.
+#### istioctl install -f generated-istio-manifest.yaml -n istio-system
 
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
