@@ -19,7 +19,7 @@ metadata:
   name: app-gateway
 spec:
   selector:
-    istio: istio-ingressgateway # label of ingressgateway deployed above
+    istio: ingressgateway # label of ingressgateway deployed above
   servers:
   - port:
       number: 80
